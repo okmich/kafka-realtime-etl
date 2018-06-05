@@ -1,0 +1,39 @@
+# topic for incoming raw trip data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic trips-raw-stream-topic --replication-factor 1 --partitions 1
+
+# topci for incoming raw fare data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic fares-raw-stream-topic --replication-factor 1 --partitions 1
+
+# topic for processed and structured trip data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic trips-refined-stream-topic --replication-factor 1 --partitions 2
+
+# topic for processed and structured fare data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic fares-refined-stream-topic --replication-factor 1 --partitions 2
+
+# topic for the joined trip and fare data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic trips-fares-join-topic --replication-factor 1 --partitions 2
+
+
+# topic for trending pickup location
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic trending-pickup-grid-topic --replication-factor 1 --partitions 1
+
+
+# topic for drive periodic payment details
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic driver-payment-statement-topic --replication-factor 1 --partitions 1
+
+
+# topic for driver periodic payment summary
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic driver-payment-summary-topic --replication-factor 1 --partitions 1
+
+# topic for income statement statement data
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic income-processing-topic --replication-factor 1 --partitions 2
+
+
+# to delete a topic 
+kafka-topics.sh --delete --zookeeper datadev-lab:2181 --topic trips-refined-stream-topic
+
+# to list topics
+kafka-topics.sh --list --zookeeper datadev-lab:2181 
+
+# console consumer
+kafka-console-consumer.sh --bootstrap-server datadev-lab:9092 --topic trips-refined-stream-topic

@@ -1,0 +1,23 @@
+# simulation for trips data production
+java -jar nyctaxidata/filereader-kafkaproducer/filereader-kafkaproducer-1.0-SNAPSHOT.jar Downloads/trips/trip_data_12.csv  quickstart.cloudera:9092 trips-raw-stream-topic
+
+# simulation for fares data production
+java -jar nyctaxidata/filereader-kafkaproducer/filereader-kafkaproducer-1.0-SNAPSHOT.jar Downloads/trips/trip_fares_12.csv  quickstart.cloudera:9092 fares-raw-stream-topic
+
+
+
+kafka-topics.sh --create --zookeeper datadev-lab:2181 --topic test_topic --replication-factor 1 --partitions 1
+
+java -jar filereader-kafkaproducer/filereader-kafkaproducer-1.0-SNAPSHOT.jar ~/Downloads/datasets/fares/trip_fare_12.csv datadev-lab:9092 fares-raw-stream-topic
+
+
+java -jar filereader-kafkaproducer/filereader-kafkaproducer-1.0-SNAPSHOT.jar ~/Downloads/datasets/trips/trip_data_12.csv datadev-lab:9092 trips-raw-stream-topic
+
+kafka-console-consumer.sh --bootstrap-server datadev-lab:9092 --topic trending-pickup-grid-topic --from-beginning --property print.key=true
+
+
+# to run the RawTripDataProcessingService on command line
+java -cp taxi-data-service/target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.RawTripDataProcessingService
+
+
+kafka-console-consumer.sh --bootstrap-server datadev-lab:9092 --topic driver-payment-summary-topic --property print.key=true --key-deserializer org.apache.kafka.common.serialization.IntegerDeserializer --value-deserializer org.apache.kafka.common.serialization.IntegerDeserializer

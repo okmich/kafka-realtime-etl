@@ -1,0 +1,10 @@
+open the url https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935 in a browsers
+
+click on the files to download them 
+
+trip_data_11.zip
+trip_fare_11.zip
+trip_data_12.zip
+trip_fare_12.zip
+
+
