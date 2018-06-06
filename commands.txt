@@ -16,8 +16,18 @@ java -jar filereader-kafkaproducer/filereader-kafkaproducer-1.0-SNAPSHOT.jar ~/D
 kafka-console-consumer.sh --bootstrap-server datadev-lab:9092 --topic trending-pickup-grid-topic --from-beginning --property print.key=true
 
 
-# to run the RawTripDataProcessingService on command line
-java -cp taxi-data-service/target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.RawTripDataProcessingService
-
 
 kafka-console-consumer.sh --bootstrap-server datadev-lab:9092 --topic driver-payment-summary-topic --property print.key=true --key-deserializer org.apache.kafka.common.serialization.IntegerDeserializer --value-deserializer org.apache.kafka.common.serialization.IntegerDeserializer
+
+
+
+# to run the stream applications on command line
+java -cp target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.RawTripDataProcessingService
+
+java -cp target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.RawFaresDataProcessingService
+
+java -cp target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.TripFareService
+
+java -cp target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.PopularGridService
+
+java -cp target/taxi-data-service-1.0-SNAPSHOT.jar com.okmich.taxidata.service.PeriodicDriverPaymentService

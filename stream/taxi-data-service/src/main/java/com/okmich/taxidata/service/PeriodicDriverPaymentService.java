@@ -17,8 +17,6 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.Aggregator;
-import org.apache.kafka.streams.kstream.Initializer;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
@@ -48,6 +46,7 @@ public class PeriodicDriverPaymentService implements Configuration {
 
             return isEligibleForPayment(v);
         });
+
         //processing the amount payable 
         KStream<String, JsonNode> processedPaymntStream = creditCardPaymntStream.map((String key, JsonNode value) -> {
             String hackLicense = value.get("hack_license").asText();
@@ -56,7 +55,8 @@ public class PeriodicDriverPaymentService implements Configuration {
         });
         //send the payment to a topic
         KStream<String, JsonNode> paymentStatmntStream
-                = processedPaymntStream.through(DRIVER_PAYMENT_STATEMENT_TOPIC, Produced.with(Serdes.String(), JSON_SERDE));
+                = processedPaymntStream.through(DRIVER_PAYMENT_STATEMENT_TOPIC,
+                        Produced.with(Serdes.String(), JSON_SERDE));
 
         //group by hack license with a tumbling window
         TimeWindowedKStream<String, JsonNode> timedPaymentSummaryStream = paymentStatmntStream
@@ -125,7 +125,6 @@ public class PeriodicDriverPaymentService implements Configuration {
 
     public static JsonNode aggregatePaymentSummary(JsonNode node1, JsonNode node2) {
         System.out.println(node1);
-        System.out.println(" >>>>>>>>>>>>>> " + node2);
         ObjectNode node = JsonNodeFactory.instance.objectNode();
 
         node.put("hack_license", node2.get("hack_license").asText());

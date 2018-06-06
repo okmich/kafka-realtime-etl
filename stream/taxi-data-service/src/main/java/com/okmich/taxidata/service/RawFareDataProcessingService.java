@@ -15,8 +15,13 @@ import org.apache.kafka.streams.kstream.Produced;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.kafka.streams.Topology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RawFareDataProcessingService implements Configuration {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RawFareDataProcessingService.class.getName());
 
     public static void main(String[] args) {
         Properties prop = new Properties();
@@ -26,6 +31,7 @@ public class RawFareDataProcessingService implements Configuration {
         prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         prop.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         prop.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+//        prop.put(ProducerConfig.ACKS_CONFIG, "all");
 
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -47,8 +53,11 @@ public class RawFareDataProcessingService implements Configuration {
         refinedTripStream.to(Configuration.REFINED_FARE_TOPIC,
                 Produced.with(Serdes.String(), Configuration.JSON_SERDE));
 
-        final KafkaStreams kafkaStreams = new KafkaStreams(builder.build(),
-                prop);
+        final Topology topology = builder.build();
+
+        LOG.info(topology.toString());
+
+        final KafkaStreams kafkaStreams = new KafkaStreams(topology, prop);
 
         kafkaStreams
                 .setUncaughtExceptionHandler((Thread t, Throwable e) -> {

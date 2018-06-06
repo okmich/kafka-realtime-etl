@@ -1,0 +1,49 @@
+curl -XPUT http://localhost:9200/nyc_tlc_trips
+{
+    "mappings": {
+        "trip": {
+            "_all": {
+                "enabled": false
+            },
+            "properties": {
+                "medallion" : {"type" : "keyword"},
+                "hack_license" : {"type" : "keyword"},
+                "vendor_id" : {"type" : "keyword"},
+                "rate_code" : {"type" : "keyword"},
+                "store_and_fwd_flag" : {"type" : "keyword"},
+                "pickup_datetime" : {"type" : "date", "format": "yyyy-MM-dd HH:mm:ss"},
+                "dropoff_datetime" : {"type" : "date", "format": "yyyy-MM-dd HH:mm:ss"},
+                "passenger_count" : {"type" : "integer"},
+                "trip_time_in_secs" : {"type" : "integer"},
+                "trip_distance" : {"type" : "float"},
+                "pickup_location" : {"type" : "geo_point"},
+                "dropoff_location" : {"type" : "geo_point"}
+            }
+        }
+    }
+    
+}
+
+curl -XPUT http://localhost:9200/nyc_tlc_fares
+{
+    "mappings": {
+        "fare": {
+            "_all": {
+                "enabled": false
+            },
+            "properties": {
+                "medallion" : {"type" : "keyword"},
+                "hack_license" : {"type" : "keyword"},
+                "vendor_id" : {"type" : "keyword"},
+                "pickup_datetime" : {"type" : "date", "format": "yyyy-MM-dd HH:mm:ss"},
+                "payment_type" : {"type" : "keyword"},
+                "fare_amount" : {"type" : "float"},
+                "surcharge" : {"type" : "float"},
+                "mta_tax" : {"type" : "float"},
+                "tip_amount" : {"type" : "float"},
+                "tolls_amount" : {"type" : "float"},
+                "total_amount" : {"type" : "float"}
+            }
+        }
+    }
+}

@@ -11,14 +11,12 @@ import org.apache.kafka.streams.Consumed;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.JoinWindows;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class TripFareService implements Configuration {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TripFareService.class);
+public class TripFareServiceUsingStream implements Configuration {
 
     public static void main(String[] args) {
         Properties prop = new Properties();
@@ -27,27 +25,26 @@ public class TripFareService implements Configuration {
         prop.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKER);
         prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         prop.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        prop.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        prop.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JSON_SERDE.getClass());
 
         StreamsBuilder builder = new StreamsBuilder();
 
         // get the refined json data from kafka topic as a table
-        KTable<String, JsonNode> refinedTripTable = builder.table(
+        KStream<String, JsonNode> refinedTripTable = builder.stream(
                 REFINED_TRIP_TOPIC, Consumed.with(Serdes.String(), JSON_SERDE));
 
         // get the refined fares json data from kafka topic
-        KTable<String, JsonNode> refinedFaresTable = builder
-                .table(REFINED_FARE_TOPIC, Consumed.with(Serdes.String(), JSON_SERDE));
+        KStream<String, JsonNode> refinedFaresTable = builder
+                .stream(REFINED_FARE_TOPIC, Consumed.with(Serdes.String(), JSON_SERDE));
 
         //join both streams
-        KTable<String, JsonNode> joinedTable
+        KStream<String, JsonNode> joinedTable
                 = refinedFaresTable.leftJoin(refinedTripTable, (JsonNode tripNode, JsonNode fareNode) -> {
-                    LOG.info(" blablad {0} ", tripNode.toString());
                     return transform(tripNode, fareNode);
-                });
+                }, JoinWindows.of(600000));
 
         //load to sink
-        joinedTable.toStream().to(MERGED_TRIP_FARES_TOPIC, Produced.with(Serdes.String(), JSON_SERDE));
+        joinedTable.to(MERGED_TRIP_FARES_TOPIC, Produced.with(Serdes.String(), JSON_SERDE));
 
         //build kafka streams
         final KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), prop);

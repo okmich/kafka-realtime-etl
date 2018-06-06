@@ -35,8 +35,9 @@ public class KafkaProducerInterface {
     }
 
     public void send(String message, long eventTs) {
-        ProducerRecord<String, String> producerRecord = new ProducerRecord(this.topic, 0, eventTs, "", message);
-        producer.send(producerRecord);
+//        ProducerRecord<String, String> producerRecord = new ProducerRecord(this.topic,0, eventTs, "", message);
+        ProducerRecord<String, String> producerRecord = new ProducerRecord(this.topic, "", message);
+        producer.send(producerRecord);  
     }
 
     public void flush() {

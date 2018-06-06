@@ -35,7 +35,7 @@ public class PopularGridService implements Configuration {
         KStream<String, JsonNode> tripStream = builder.stream(REFINED_TRIP_TOPIC, Consumed.with(Serdes.String(), JSON_SERDE));
 
         //map it to pair (Integer, 1)
-        KTable<Windowed<Integer>, Integer> gridCountTable = tripStream.map((String key, JsonNode value) -> {
+        KStream<Integer, Integer> nycGridStream = tripStream.map((String key, JsonNode value) -> {
             float lon = (float) value.get("pickup_location").get(0).asDouble();
             float lat = (float) value.get("pickup_location").get(1).asDouble();
 
@@ -45,11 +45,15 @@ public class PopularGridService implements Configuration {
             }
 
             return new KeyValue(gridId, 1);
-        }).filter((Object k, Object v) -> ((Integer) k > -1))
-                .groupByKey().windowedBy(TimeWindows.of(TimeUnit.MINUTES.toMillis(3)).advanceBy(TimeUnit.MINUTES.toMillis(1)))
-                .reduce((Object value1, Object value2) -> {
-                    return ((Integer) value1) + ((Integer) value2);
-                });
+        }).filter((Object k, Object v) -> ((Integer) k > -1));
+
+        //get grid count in a sliding window
+        KTable<Windowed<Integer>, Integer> gridCountTable
+                = nycGridStream
+                        .groupByKey().windowedBy(TimeWindows.of(TimeUnit.MINUTES.toMillis(5)).advanceBy(TimeUnit.MINUTES.toMillis(1)))
+                        .reduce((Integer value1, Integer value2) -> {
+                            return value1 + value2;
+                        });
 
         //write out to a stream
         gridCountTable.toStream()
