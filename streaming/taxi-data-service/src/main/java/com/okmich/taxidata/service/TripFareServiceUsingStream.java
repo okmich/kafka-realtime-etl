@@ -13,7 +13,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.JoinWindows;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
 
 public class TripFareServiceUsingStream implements Configuration {
@@ -76,23 +75,24 @@ public class TripFareServiceUsingStream implements Configuration {
         node.put("tolls_amount", fareNode.get("tolls_amount").asDouble(0));
         node.put("total_amount", fareNode.get("total_amount").asDouble(0));
 
-        node.put("rate_code", ifNotEmpty(tripNode.get("rate_code")));
-        node.put("store_and_fwd_flag", ifNotEmpty(tripNode.get("store_and_fwd_flag")));
-        node.put("passenger_count", tripNode.get("passenger_count").asInt());
-        node.put("trip_time_in_secs", tripNode.get("trip_time_in_secs").asLong());
-        node.put("trip_distance", tripNode.get("trip_distance").asDouble(0));
+        if (tripNode != null) {
+            node.put("rate_code", ifNotEmpty(tripNode.get("rate_code")));
+            node.put("store_and_fwd_flag", ifNotEmpty(tripNode.get("store_and_fwd_flag")));
+            node.put("passenger_count", tripNode.get("passenger_count").asInt());
+            node.put("trip_time_in_secs", tripNode.get("trip_time_in_secs").asLong());
+            node.put("trip_distance", tripNode.get("trip_distance").asDouble(0));
 
-        node.put("pickup_datetime", fareNode.get("pickup_datetime").asText());
-        node.put("dropoff_datetime", tripNode.get("dropoff_datetime").asText());
+            node.put("pickup_datetime", fareNode.get("pickup_datetime").asText());
+            node.put("dropoff_datetime", tripNode.get("dropoff_datetime").asText());
 
-        ArrayNode pickupNode = node.putArray("pickup_location");
-        pickupNode.add(tripNode.get("pickup_location").get(0));
-        pickupNode.add(tripNode.get("pickup_location").get(1));
+            ArrayNode pickupNode = node.putArray("pickup_location");
+            pickupNode.add(tripNode.get("pickup_location").get(0));
+            pickupNode.add(tripNode.get("pickup_location").get(1));
 
-        ArrayNode dropOffNode = node.putArray("dropoff_location");
-        dropOffNode.add(tripNode.get("dropoff_location").get(0));
-        dropOffNode.add(tripNode.get("dropoff_location").get(1));
-
+            ArrayNode dropOffNode = node.putArray("dropoff_location");
+            dropOffNode.add(tripNode.get("dropoff_location").get(0));
+            dropOffNode.add(tripNode.get("dropoff_location").get(1));
+        }
         return node;
     }
 

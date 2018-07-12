@@ -47,20 +47,14 @@ public class ClientSimulator {
     }
 
     public void start() throws Exception {
-        int count = 0;
         String line = this.bufferedFileReader.readLine();
         long pickupTs = 0;
         do {
             pickupTs = getPickupTs(line);
             if (pickupTs != 0l) {
                 kafkaProducerInterface.send(line, pickupTs);
-                count++;
-                //flush after a certain number of send message
-                if (count == 1000) {
-                    kafkaProducerInterface.flush();
-                    count = 0;
-                    Thread.sleep(10000l); //hold on for 5 secs
-                }
+                Thread.sleep((long) (1000d * Math.random())); //hold on for up to 1 sec
+
                 Logger.getLogger(ClientSimulator.class.getName()).log(Level.INFO, "{0}", new Object[]{line});
             }
             line = this.bufferedFileReader.readLine();
