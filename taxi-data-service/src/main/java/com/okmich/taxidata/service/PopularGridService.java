@@ -59,7 +59,7 @@ public class PopularGridService implements Configuration {
         gridCountTable.toStream()
                 .map((Windowed<Integer> key, Integer value) -> {
 
-                    System.out.println("From window " + key.toString() + ", -> key is " + key.key() + " and value is " + value);
+                    //System.out.println("From window " + key.toString() + ", -> key is " + key.key() + " and value is " + value);
                     return new KeyValue(key.key(), value);
                 })
                 .to(TRENDING_PICKUP_GRID_TOPIC);
